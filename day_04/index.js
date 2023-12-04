@@ -25,10 +25,7 @@ const searchWonNumbers = (winning, owned) => {
 
 const calculatePoints = wonNumbers => {
     return wonNumbers.reduce((prev, curr) => {
-        if (prev === 0) {
-            return 1;
-        }
-        return prev * 2;
+        return prev === 0 ? 1 : prev * 2;
     }, 0);
 };
 
@@ -39,22 +36,12 @@ const points = formatedCards.map(({ winning, owned }) => {
     return calculatePoints(wonNumbers);
 });
 
-// show debug data
-let logData = [];
-formatedCards.forEach(({ id, winning, owned }) => {
-    const wonNumbers = searchWonNumbers(winning, owned);
-    const points = calculatePoints(wonNumbers);
-    logData.push({ id, "won numbers": wonNumbers, points, owned, winning });
-});
-console.table(logData);
-// end show debug data
-
 const star1 = points.reduce((prev, curr) => prev + curr, 0);
-
-console.log("star 1: ", star1);
 
 let scratchcards = [];
 let precedentCopy = [...formatedCards];
+
+// probably not the most optimal/efficient way of doing it..
 while (precedentCopy.length > 0) {
     let tempScratchCards = [];
     precedentCopy.forEach(({ id, winning, owned }) => {
@@ -68,9 +55,20 @@ while (precedentCopy.length > 0) {
     precedentCopy = [...tempScratchCards];
 }
 
-console.log(
-    "scratchcards: ",
-    scratchcards.sort((a, b) => a.id - b.id).map(c => c.id)
-);
 const star2 = scratchcards.length;
+console.log("star 1: ", star1);
 console.log("star 2: ", star2);
+
+// show debug data
+// let logData = [];
+// formatedCards.forEach(({ id, winning, owned }) => {
+//     const wonNumbers = searchWonNumbers(winning, owned);
+//     const points = calculatePoints(wonNumbers);
+//     logData.push({ id, "won numbers": wonNumbers, points, owned, winning });
+// });
+// console.table(logData);
+// console.log(
+//     "scratchcards: ",
+//     scratchcards.sort((a, b) => a.id - b.id).map(c => c.id)
+// );
+// end show debug data
