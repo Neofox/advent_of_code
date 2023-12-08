@@ -1,6 +1,6 @@
 const fs = require("fs");
 
-const input = fs.readFileSync("input.txt", "utf8");
+const input = fs.readFileSync("test3.txt", "utf8");
 const lines = input.split("\n");
 const moves = lines[0].split("");
 const lastMoves = [];
@@ -87,11 +87,19 @@ const gcd = (a, b) => {
 let nodes = [...map.keys()].filter(node => node.endsWith("A"));
 let periods = nodes.map(_ => 0);
 let count = 0;
+// while we haven't found a position for each end
 while (!periods.every(n => n !== 0)) {
+    // get new set of nodes
     nodes = nodes.map((node, i) => {
         const next = map.get(node);
         return nextMove(i) === "L" ? next[0] : next[1];
     });
+    // look for nodes finishing with Z and update periods accordingly.
+    // if a node finishes with Z, and its period is 0, it means it has not been visited before.
+    // so we set its period to the current count.
+    // this is because the period of a node is the number of moves it takes to get to it from the starting node.
+    // if a node finishes with Z, and its period is not 0, it means it has been visited before.
+    // so we don't need to set its period to the current count.
     nodes.forEach((node, i) => {
         if (node.endsWith("Z") && periods[i] === 0) {
             periods[i] = count;
@@ -99,8 +107,9 @@ while (!periods.every(n => n !== 0)) {
     });
     count++;
 }
+// periods are now the number of moves it takes to get to each node from the starting node.
 periods = periods.map(n => n + 1);
 const star2 = lcmm(periods);
 
-console.log("star 1: ", star1);
+// console.log("star 1: ", star1);
 console.log("star 2: ", star2);
