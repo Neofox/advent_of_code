@@ -11,12 +11,11 @@ const lines = input.split("\n");
  * @returns {number}
  */
 const findTypeStar1 = hand => {
-    let cards = {};
-    hand.split("").forEach(x => {
-        !cards[x] ? (cards[x] = 1) : cards[x]++;
+    let cards = new Map();
+    hand.split("").forEach(card => {
+        cards.set(card, (cards.get(card) || 0) + 1);
     });
-    let cardType = Object.values(cards).sort((a, b) => b - a);
-
+    let cardType = Array.from(cards.values()).sort((a, b) => b - a);
     if (cardType[0] === 5) {
         return 6; // five of a kind
     } else if (cardType[0] === 4) {
@@ -40,17 +39,15 @@ const findTypeStar1 = hand => {
  * @returns {number}
  */
 const findTypeStar2 = hand => {
-    let cards = {};
-    let jokers = 0;
-    hand.split("").forEach(x => {
-        if (x !== "J") {
-            !cards[x] ? (cards[x] = 1) : cards[x]++;
-        } else {
-            jokers++;
-        }
+    let cards = new Map();
+    hand.split("").forEach(card => {
+        cards.set(card, (cards.get(card) || 0) + 1);
     });
-    let cardType = Object.values(cards).sort((a, b) => b - a);
-    cardType[0] ? (cardType[0] += jokers) : (cardType[0] = jokers);
+    jokers = cards.get("J") ? cards.get("J") : 0;
+    cards.delete("J");
+
+    let cardType = Array.from(cards.values()).sort((a, b) => b - a);
+    cardType[0] = cardType[0] ? (cardType[0] += jokers) : jokers;
 
     if (cardType[0] === 5) {
         return 6; // five of a kind
@@ -58,7 +55,7 @@ const findTypeStar2 = hand => {
         return 5; // four of a kind
     } else if (cardType[0] === 3 && cardType[1] === 2) {
         return 4; // full house
-    } else if (cardType[0] === 3 && cardType[1] === 1) {
+    } else if (cardType[0] === 3) {
         return 3; // three of a kind
     } else if (cardType[0] === 2 && cardType[1] === 2) {
         return 2; // two pairs
