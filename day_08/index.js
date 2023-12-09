@@ -1,6 +1,6 @@
 const fs = require("fs");
 
-const input = fs.readFileSync("test3.txt", "utf8");
+const input = fs.readFileSync("input.txt", "utf8");
 const lines = input.split("\n");
 const moves = lines[0].split("");
 const lastMoves = [];
@@ -111,5 +111,5 @@ while (!periods.every(n => n !== 0)) {
 periods = periods.map(n => n + 1);
 const star2 = lcmm(periods);
 
-// console.log("star 1: ", star1);
+console.log("star 1: ", star1);
 console.log("star 2: ", star2);
