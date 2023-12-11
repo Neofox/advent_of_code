@@ -14,6 +14,13 @@ const searchStart = arr => {
     }
 };
 
+/**
+ *
+ * @param {{x: number, y: number}} pos
+ * @param {string[]} arr
+ * @param {{x: number, y: number}[]} res
+ * @returns {{x: number, y: number}[]}
+ */
 const findLoop = (pos, arr, res = []) => {
     if (res.length > 0 && arr[pos.y][pos.x] === "S") {
         return [...res, pos];
@@ -76,8 +83,53 @@ const findLoop = (pos, arr, res = []) => {
 
 const start = searchStart(arr);
 const loop = findLoop(start, arr);
-console.log({ start, loop }, loop.length);
 const star1 = Math.floor(loop.length / 2);
 
-console.log("star 1: ", star1); // the node process will need --stack-size=2500 to execute
-// console.log("star 2: ", star2);
+// star 2
+const enclosedTiles = cleanGrid => {
+    const outside = [];
+
+    // Horizontal search
+    cleanGrid.forEach((row, y) => {
+        let within = false;
+        let up = false;
+
+        for (let x = 0; x < row.length; x++) {
+            const tile = row[x];
+
+            if (["|"].includes(tile)) {
+                within = !within;
+            } else if (["L", "F"].includes(tile)) {
+                up = tile === "L";
+            } else if (["7", "J"].includes(tile)) {
+                if (up ? tile !== "J" : tile !== "7") within = !within;
+                up = false;
+            }
+
+            if (!within && tile === ".") outside.push({ x, y });
+        }
+    });
+
+    return outside;
+};
+
+// Convert non-loop tiles to ground
+const cleanArr = arr.map((row, y) =>
+    row.map((tile, x) => {
+        return loop.find(pos => pos.x === x && pos.y === y) ? tile : ".";
+    })
+);
+const outside = enclosedTiles(cleanArr);
+// I'm 1 off in my calculations... probably because loop include start twice
+const star2 = arr.length * arr[0].length - new Set([...outside, ...loop]).size;
+
+// the node process will need --stack-size=2500 to execute
+console.log("star 1: ", star1);
+console.log("star 2: ", star2);
+
+// // output clean arr
+// cleanArr.forEach(row => {
+//     const line = row.join("") + "\n";
+//     // fs.writeFileSync("output.txt", line, { flag: "a" });
+//     console.log(line);
+// });
