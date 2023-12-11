@@ -1,7 +1,7 @@
 const fs = require("fs");
 require("util").inspect.defaultOptions.depth = 4; // increase consolelog deep
 
-const input = fs.readFileSync("test.txt", "utf8");
+const input = fs.readFileSync("input.txt", "utf8");
 const lines = input.split("\n");
 const universe = lines.map(line => line.split(""));
 
@@ -51,15 +51,26 @@ const expandUniverse = (universe, expense = 1) => {
  * @param {string[][]} universe
  * @returns {{x: number, y: number}[]}
  */
-const findGalaxies = universe => {
+const findGalaxies = (universe, expansion = 1) => {
+    expansion = expansion - 1;
     const galaxies = [];
+    let offsetX = 0;
+    let offsetY = 0;
 
     universe.forEach((row, y) => {
         row.forEach((tile, x) => {
             if (tile === "#") {
-                galaxies.push({ x, y });
+                galaxies.push({ x: x + offsetX, y: y + offsetY });
+                return;
+            }
+            if (universe.map(row => row[x]).every(tile => tile === ".")) {
+                offsetX += expansion;
             }
         });
+        offsetX = 0;
+        if (row.every(space => space === ".")) {
+            offsetY += expansion;
+        }
     });
 
     return galaxies;
@@ -96,8 +107,8 @@ const star1 = galaxiesPairs.reduce((prev, pair) => {
 
 console.log("star 1: ", star1 / 2);
 
-const expandedUniverseStar2 = expandUniverse(universe, 100);
-const galaxiesStar2 = findGalaxies(expandedUniverseStar2);
+// optimize high expansion by not creating the expanded universe and just adding offset to galaxies
+const galaxiesStar2 = findGalaxies(universe, 1_000_000);
 
 // this add doubles (when galaxyA is galaxyB) so result should be divided by two
 const galaxiesPairsStar2 = galaxiesStar2
