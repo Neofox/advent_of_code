@@ -1,5 +1,4 @@
 const fs = require("fs");
-require("util").inspect.defaultOptions.depth = 4; // increase consolelog deep
 
 const input = fs.readFileSync("input.txt", "utf8");
 const lines = input.split("\n");
@@ -52,7 +51,7 @@ const expandUniverse = (universe, expense = 1) => {
  * @returns {{x: number, y: number}[]}
  */
 const findGalaxies = (universe, expansion = 1) => {
-    expansion = expansion - 1;
+    expansion = expansion - 1; // if forgotten weird things happens
     const galaxies = [];
     let offsetX = 0;
     let offsetY = 0;
@@ -105,8 +104,6 @@ const star1 = galaxiesPairs.reduce((prev, pair) => {
     return prev + findDistanceBetweenGalaxies(pair.galaxyA, pair.galaxyB);
 }, 0);
 
-console.log("star 1: ", star1 / 2);
-
 // optimize high expansion by not creating the expanded universe and just adding offset to galaxies
 const galaxiesStar2 = findGalaxies(universe, 1_000_000);
 
@@ -125,4 +122,6 @@ const galaxiesPairsStar2 = galaxiesStar2
 const star2 = galaxiesPairsStar2.reduce((prev, pair) => {
     return prev + findDistanceBetweenGalaxies(pair.galaxyA, pair.galaxyB);
 }, 0);
+
+console.log("star 1: ", star1 / 2);
 console.log("star 2: ", star2 / 2);
