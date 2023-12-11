@@ -27,6 +27,7 @@ const findLoop = (pos, arr, res = []) => {
     }
     const precedentPos = res[res.length - 1];
 
+    // I only check left or right, would be safer to also check other starting directions
     if (arr[pos.y][pos.x] === "S") {
         if (["-", "7", "J"].includes(arr[pos.y][pos.x + 1])) {
             return findLoop({ x: pos.x + 1, y: pos.y }, arr, [...res, pos]);
@@ -83,53 +84,50 @@ const findLoop = (pos, arr, res = []) => {
 
 const start = searchStart(arr);
 const loop = findLoop(start, arr);
+
+// farther away distance would be the same distance in both directions
 const star1 = Math.floor(loop.length / 2);
 
 // star 2
-const enclosedTiles = cleanGrid => {
+const outsideTiles = arr => {
     const outside = [];
 
-    // Horizontal search
-    cleanGrid.forEach((row, y) => {
-        let within = false;
-        let up = false;
+    arr.forEach((row, y) => {
+        let isEnclosed = false;
+        let isUp = false;
 
-        for (let x = 0; x < row.length; x++) {
-            const tile = row[x];
-
+        row.forEach((tile, x) => {
             if (["|"].includes(tile)) {
-                within = !within;
+                isEnclosed = !isEnclosed;
             } else if (["L", "F"].includes(tile)) {
-                up = tile === "L";
+                isUp = tile === "L";
             } else if (["7", "J"].includes(tile)) {
-                if (up ? tile !== "J" : tile !== "7") within = !within;
-                up = false;
+                if (isUp ? tile !== "J" : tile !== "7") {
+                    isEnclosed = !isEnclosed;
+                    isUp = false;
+                }
             }
 
-            if (!within && tile === ".") outside.push({ x, y });
-        }
+            if (!isEnclosed && tile === ".") {
+                outside.push({ x, y });
+            }
+        });
     });
 
     return outside;
 };
 
 // Convert non-loop tiles to ground
-const cleanArr = arr.map((row, y) =>
-    row.map((tile, x) => {
-        return loop.find(pos => pos.x === x && pos.y === y) ? tile : ".";
-    })
-);
-const outside = enclosedTiles(cleanArr);
-// I'm 1 off in my calculations... probably because loop include start twice
-const star2 = arr.length * arr[0].length - new Set([...outside, ...loop]).size;
+const cleanArr = arr.map((row, y) => row.map((tile, x) => (loop.find(pos => pos.x === x && pos.y === y) ? tile : ".")));
+
+const outside = outsideTiles(cleanArr);
+const totalSizeOfArr = arr.length * arr[0].length; // height * width
+// loop include start position twice so length - 1
+const star2 = totalSizeOfArr - (loop.length - 1) - outside.length;
 
 // the node process will need --stack-size=2500 to execute
 console.log("star 1: ", star1);
 console.log("star 2: ", star2);
 
-// // output clean arr
-// cleanArr.forEach(row => {
-//     const line = row.join("") + "\n";
-//     // fs.writeFileSync("output.txt", line, { flag: "a" });
-//     console.log(line);
-// });
+// generate output.txt
+// cleanArr.forEach(row => fs.writeFileSync("output.txt", row.join("") + "\n", { flag: a }));
