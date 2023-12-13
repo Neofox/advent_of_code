@@ -65,8 +65,7 @@ const star1 = patterns.reduce((acc, pattern) => {
 
     if (rowReflection) {
         acc = acc + rowReflection[0] * 100; // add number of left rows
-    }
-    if (columnReflection) {
+    } else if (columnReflection) {
         acc = acc + columnReflection[0]; // add number of left columns
     }
     return acc;
