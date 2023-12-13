@@ -1,9 +1,9 @@
 const fs = require("fs");
 
 const input = fs.readFileSync("input.txt", "utf8");
-const lines = input.split("\n");
 
 const extractPatterns = input => {
+    const lines = input.split("\n");
     const patterns = [];
     let tempPattern = [];
     for (let i = 0; i < lines.length; i++) {
@@ -23,65 +23,38 @@ const extractPatterns = input => {
 const checkRowReflection = pattern => {
     // TODO: can be optimized to look for middle of array to start with
     for (let i = 0; i < pattern.length - 1; i++) {
-        const isReflection = findRowReflection(i, i + 1, pattern);
-        // console.log(i, isReflection);
-
-        if (isReflection) {
+        if (findReflection(i, i + 1, pattern, "row")) {
             return [i + 1, i + 2];
         }
-    }
-    return false;
-};
-
-const findRowReflection = (indexA, indexB, pattern, nb = 0) => {
-    if (nb * 2 >= pattern.length - 1) {
-        return true;
-    }
-    if (indexA < 0 || indexB > pattern.length - 1) {
-        if (nb * 2 >= 1) {
-            return true;
-        }
-        return false;
-    }
-
-    const rowA = pattern[indexA].join("");
-    const rowB = pattern[indexB].join("");
-    if (rowA === rowB) {
-        return findRowReflection(indexA - 1, indexB + 1, pattern, nb + 1);
     }
     return false;
 };
 
 const checkColumnReflection = pattern => {
     for (let i = 0; i < pattern[0].length - 1; i++) {
-        const isReflection = findColumnReflection(i, i + 1, pattern);
-        // console.log(i, isReflection);
-
-        if (isReflection) {
+        if (findReflection(i, i + 1, pattern, "col")) {
             return [i + 1, i + 2];
         }
     }
     return false;
 };
 
-// TODO: can be refacto with rowReflection
-const findColumnReflection = (indexA, indexB, pattern, nb = 0) => {
-    if (nb * 2 >= pattern[0].length - 1) {
+const findReflection = (indexA, indexB, pattern, mode = "row", nb = 0) => {
+    const length = mode === "row" ? pattern.length : pattern[0].length;
+
+    if (nb * 2 >= length - 1) {
         return true;
     }
-    if (indexA < 0 || indexB > pattern[0].length - 1) {
-        if (nb * 2 >= 1) {
-            return true;
-        }
-        return false;
+    if (indexA < 0 || indexB > length - 1) {
+        return nb * 2 >= 1;
+    }
+    const valA = mode === "row" ? pattern[indexA].join("") : pattern.map(row => row[indexA]).join("");
+    const valB = mode === "row" ? pattern[indexB].join("") : pattern.map(row => row[indexB]).join("");
+
+    if (valA === valB) {
+        return findReflection(indexA - 1, indexB + 1, pattern, mode, nb + 1);
     }
 
-    const colA = pattern.map(row => row[indexA]).join("");
-    const colB = pattern.map(row => row[indexB]).join("");
-
-    if (colA === colB) {
-        return findColumnReflection(indexA - 1, indexB + 1, pattern, nb + 1);
-    }
     return false;
 };
 
